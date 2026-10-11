@@ -77,3 +77,45 @@ if __name__ == "__main__":
     else:
         username = sys.argv[1]
     jalankan_pencarian(username)
+
+def scan_username(username):
+    print(f"\n🔍 Memulai pemindaian untuk username: {username}")
+    print("-" * 50)
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+
+    for platform, url_template in PLATFORMS.items():
+        url = url_template.format(username=username)
+        req = urllib.request.Request(url, headers=headers)
+        
+        try:
+            # Beri jeda antar request agar aman dari rate-limit
+            time.sleep(1) 
+            
+                    
+            with urllib.request.urlopen(req, timeout=5) as response:
+                if response.status == 200:
+                    print(f"✅ [DITEMUKAN] {platform}: {url}")
+                    
+        except HTTPError as e:
+            if e.code == 404:
+                print(f"❌ [TIDAK ADA] {platform}")
+            else:
+                print(f"⚠️ [ERROR {e.code}] {platform}")
+        except URLError:
+            print(f"📡 [KONEKSI GAGAL] {platform}")
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        target_user = sys.argv[1]
+    else:
+        target_user = input("Masukkan username yang ingin dicari: ").strip()
+        
+    if target_user:
+        scan_username(target_user)
+    else:
+        print("Username tidak boleh kosong!")
+
+
