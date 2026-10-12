@@ -7,6 +7,28 @@ Sosmed-Scanner adalah sebuah perangkat lunak *backend* berbasis Python yang dira
 ### 📝 Bahasa Pemrograman
 * **Python 3.7** atau versi yang lebih baru.
 
+# Social Media Automation Bot
+
+A professional, object-oriented Python script using Selenium to securely automate logins for Instagram and TikTok.
+
+## Features
+- **Object-Oriented Programming (OOP)** implementation.
+- **Secure Credentials Management** using environment variables.
+- **Robust Error Handling** using try-except blocks for element timeouts and missing nodes.
+- **Automated WebDriver Setup** using WebDriver Manager.
+
+## Installation
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Create a `.env` file in the root directory and add your credentials.
+3. Run the main script:
+   ```bash
+   python main.py
+   ```
+
+
 ### 📚 Pustaka / Modul yang Dipakai (Standard Library)
 Proyek ini dibangun sepenuhnya menggunakan modul bawaan Python, sehingga **tidak memerlukan instalasi tambahan (*zero-dependency*)**:
 
