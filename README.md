@@ -1,69 +1,27 @@
-# -Sosmed-Scanner-
+# Sosmed Scanner
 
-Sosmed-Scanner adalah sebuah perangkat lunak *backend* berbasis Python yang dirancang untuk melakukan pemindaian (*scanning*) profil publik di berbagai platform media sosial. Program ini berjalan sepenuhnya melalui baris perintah (*Command Line Interface* / CLI) secara efisien dan aman.
+A high-performance Python CLI tool designed to verify username availability across popular social media platforms utilizing safe, structured standard library HTTP operations.
 
-## 🛠️ Teknologi yang Digunakan
+## Architecture & Design
+- **Single-Responsibility Principle:** Modularized functions split between networking lookups (`cek_platform`) and sequence control (`jalankan_pencarian`).
+- **Structured Logging:** Utilizes Python's native `logging` framework instead of dirty stdout prints.
+- **Robust Exception Abstraction:** Explicit classification of network anomalies protecting execution states against `HTTPError` and `URLError`.
 
-### 📝 Bahasa Pemrograman
-* **Python 3.7** atau versi yang lebih baru.
-
-# Social Media Automation Bot
-
-A professional, object-oriented Python script using Selenium to securely automate logins for Instagram and TikTok.
-
-## Features
-- **Object-Oriented Programming (OOP)** implementation.
-- **Secure Credentials Management** using environment variables.
-- **Robust Error Handling** using try-except blocks for element timeouts and missing nodes.
-- **Automated WebDriver Setup** using WebDriver Manager.
-
-## Installation
-1. Install dependencies:
+## Installation & Setup
+1. Clone the repository into a clean environment.
+2. Development tools setup:
    ```bash
-   pip install -r requirements.txt
-   ```
-2. Create a `.env` file in the root directory and add your credentials.
-3. Run the main script:
-   ```bash
-   python main.py
+   pip install -r requirements-dev.txt
    ```
 
-
-### 📚 Pustaka / Modul yang Dipakai (Standard Library)
-Proyek ini dibangun sepenuhnya menggunakan modul bawaan Python, sehingga **tidak memerlukan instalasi tambahan (*zero-dependency*)**:
-
-| Modul | Fungsi |
-| --- | --- |
-| `sys` | Membaca input argumen langsung dari baris perintah. |
-| `time` | Memberikan jeda (*rate-limiting*) antar permintaan agar tidak membebani server target. |
-| `urllib.request` | Melakukan permintaan HTTP untuk mengakses halaman web profil publik. |
-| `urllib.error` | Menangani kesalahan koneksi atau respon HTTP (seperti error 404 atau 403). |
-| `datetime` | Mencatat stempel waktu (*timestamp*) dan penamaan berkas log hasil pemindaian secara otomatis. |
-| `json` | Mengolah dan menyimpan data hasil pemindaian ke dalam format terstruktur. |
-
-> ❌ **Tidak Menggunakan Framework Eksternal:** Proyek ini sengaja tidak bergantung pada framework atau pustaka pihak ketiga seperti *Requests*, *Flask*, atau *Django* agar tetap ringan dan dapat langsung dijalankan di lingkungan komputer mana pun yang sudah terpasang Python.
-
-## 🚀 Cara Instalasi & Menjalankan
-
-### Prasyarat
-Pastikan Anda sudah menginstal Python (versi 3.7 ke atas) di perangkat Anda. Anda dapat mengeceknya dengan perintah:
+## Usage Execution
+Run the scanning utility directly from your command-line interface:
 ```bash
-python --version
+python sosmed_scanner.py your_target_username
 ```
 
-### Langkah Menjalankan
-1. Klon repositori ini ke komputer lokal Anda:
-   ```bash
-   git clone https://github.com
-   ```
-2. Masuk ke dalam direktori proyek:
-   ```bash
-   cd -Sosmed-Scanner-
-   ```
-3. Jalankan skrip utama (sesuaikan nama file utama Anda, misalnya `main.py`):
-   ```bash
-   python main.py
-   ```
-
-## 📝 Lisensi
-Proyek ini dilisensikan di bawah **MIT License** - lihat berkas [LICENSE](LICENSE) untuk informasi lebih lanjut.
+## Running Automated Tests
+The repository features fully mocked automated unit testing managed via `pytest`:
+```bash
+pytest -v
+```
