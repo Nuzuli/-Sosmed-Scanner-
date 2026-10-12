@@ -1,0 +1,1 @@
+# Proyek menggunakan Python Standard Library (Zero-dependency untuk runtime)
