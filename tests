@@ -1,9 +1,10 @@
 test_sosmed_scanner.py
 
 import pytest
+import logging
 from unittest.mock import patch, MagicMock
 from urllib.error import HTTPError, URLError
-from sosmed_scanner import cek_platform
+from sosmed_scanner import cek_platform, jalankan_pencarian
 
 @patch('urllib.request.urlopen')
 def test_cek_platform_200_success(mock_urlopen):
@@ -30,3 +31,9 @@ def test_cek_platform_url_error(mock_urlopen):
 
     result = cek_platform("GitHub", "https://github.com{}", "testuser")
     assert result is False
+
+def test_jalankan_pencarian_invalid_input(caplog):
+    """Menguji jalankan_pencarian jika input tidak valid/bukan teks."""
+    with caplog.at_level(logging.ERROR):
+        jalankan_pencarian(None)
+        assert "Input tidak valid. Username harus berupa teks." in caplog.text
