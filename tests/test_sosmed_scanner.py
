@@ -2,11 +2,11 @@ import pytest
 import logging
 from unittest.mock import patch, MagicMock
 from urllib.error import HTTPError, URLError
-from sosmed_scanner import cek_platform, jalankan_pencarian
+from sosmed_scanner.network import cek_platform
+from sosmed_scanner.scanner import jalankan_pencarian
 
 @patch('urllib.request.urlopen')
 def test_cek_platform_200_success(mock_urlopen):
-    """Menguji jika HTTP status 200 (Username ditemukan)."""
     mock_response = MagicMock()
     mock_response.status = 200
     mock_urlopen.return_value.__enter__.return_value = mock_response
@@ -16,7 +16,6 @@ def test_cek_platform_200_success(mock_urlopen):
 
 @patch('urllib.request.urlopen')
 def test_cek_platform_404_not_found(mock_urlopen):
-    """Menguji jika HTTPError 404 (Username tidak ditemukan)."""
     mock_urlopen.side_effect = HTTPError("https://github.comtestuser", 404, "Not Found", {}, None)
 
     result = cek_platform("GitHub", "https://github.com{}", "testuser")
@@ -24,14 +23,27 @@ def test_cek_platform_404_not_found(mock_urlopen):
 
 @patch('urllib.request.urlopen')
 def test_cek_platform_url_error(mock_urlopen):
-    """Menguji situasi kegagalan koneksi jaringan (URLError)."""
     mock_urlopen.side_effect = URLError("Connection refused")
 
     result = cek_platform("GitHub", "https://github.com{}", "testuser")
     assert result is False
 
+@patch('urllib.request.urlopen')
+def test_cek_platform_generic_exception(mock_urlopen):
+    """Menguji penanganan error tidak terduga (Exception global)."""
+    mock_urlopen.side_effect = Exception("System crash")
+
+    result = cek_platform("GitHub", "https://github.com{}", "testuser")
+    assert result is False
+
 def test_jalankan_pencarian_invalid_input(caplog):
-    """Menguji jalankan_pencarian jika input tidak valid/bukan teks."""
     with caplog.at_level(logging.ERROR):
         jalankan_pencarian(None)
         assert "Input tidak valid. Username harus berupa teks." in caplog.text
+
+@patch('sosmed_scanner.scanner.cek_platform')
+def test_jalankan_pencarian_loop_count(mock_cek):
+    """Memastikan loop berjalan tepat 3 kali untuk 3 platform media sosial."""
+    mock_cek.return_value = True
+    jalankan_pencarian("validuser")
+    assert mock_cek.call_count == 3
