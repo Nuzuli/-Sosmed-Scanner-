@@ -1,27 +1,31 @@
 # Sosmed Scanner
 
-A high-performance Python CLI tool designed to verify username availability across popular social media platforms utilizing safe, structured standard library HTTP operations.
+A professional Python command-line utility designed to verify username availability across multiple social media platforms securely using standard library HTTP modules.
 
-## Architecture & Design
-- **Single-Responsibility Principle:** Modularized functions split between networking lookups (`cek_platform`) and sequence control (`jalankan_pencarian`).
-- **Structured Logging:** Utilizes Python's native `logging` framework instead of dirty stdout prints.
-- **Robust Exception Abstraction:** Explicit classification of network anomalies protecting execution states against `HTTPError` and `URLError`.
+## Architecture Description
+The project adheres to a clean modular architecture structure:
+- `sosmed_scanner/network.py`: Handles low-level networking primitives and protocol abstractions.
+- `sosmed_scanner/scanner.py`: Handles loop automation orchestration across target endpoints.
+- `sosmed_scanner/cli.py`: Handles command-line arguments parsing and logging initialization.
+
+## Environment Variables
+- No environment variables required. Designed strictly as a zero-dependency, standard library standard runtime tool.
 
 ## Installation & Setup
-1. Clone the repository into a clean environment.
-2. Development tools setup:
+1. Clone the repository to your local drive.
+2. Install testing configurations:
    ```bash
    pip install -r requirements-dev.txt
    ```
 
 ## Usage Execution
-Run the scanning utility directly from your command-line interface:
+Execute the package module directly using Python's CLI:
 ```bash
-python sosmed_scanner.py your_target_username
+python -m sosmed_scanner.cli target_username
 ```
 
 ## Running Automated Tests
-The repository features fully mocked automated unit testing managed via `pytest`:
+Run automated mock test verification with forced strict coverage rules:
 ```bash
-pytest -v
+pytest -v --cov=sosmed_scanner --cov-fail-under=80
 ```
