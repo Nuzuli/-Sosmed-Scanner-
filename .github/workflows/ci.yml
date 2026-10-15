@@ -1,4 +1,4 @@
-name: CI Quality Assurance
+: CI Quality Assurance
 
 on:
   push:
