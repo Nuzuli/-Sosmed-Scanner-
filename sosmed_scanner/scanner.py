@@ -1,7 +1,22 @@
 import sys
 import re
 import logging
-from sosmed_scanner.scanner import jalankan_pencarian
+
+def jalankan_pencarian(username):
+    from .network import cek_platform
+    
+    platforms = {
+        "Instagram": "https://www.instagram.com/{username}/",
+        "Twitter/X": "https://x.com/{username}",
+        "GitHub": "https://github.com/{username}"
+    }
+    
+    hasil = {}
+    for nama_platform, url_template in platforms.items():
+        url = url_template.format(username=username)
+        hasil[nama_platform] = cek_platform(url, username)
+    return hasil
+
 
 # Konfigurasi logging agar mencantumkan nama modul secara terstruktur
 logging.basicConfig(
