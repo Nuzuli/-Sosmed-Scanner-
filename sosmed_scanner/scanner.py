@@ -1,11 +1,14 @@
 """Scan public profile pages for a username."""
 
+import logging
 import re
 import time
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Sequence
 
 from sosmed_scanner.network import HttpResult, fetch_status
+
+logger = logging.getLogger(__name__)
 
 PLATFORMS: Dict[str, str] = {
     "GitHub": "https://github.com/{username}",
@@ -85,6 +88,7 @@ def scan_username(
         if index > 0 and delay > 0:
             sleep(delay)
         url = template.format(username=cleaned)
+        logger.debug("Checking %s", name)
         outcome = fetch(url)
         detail = outcome.error
         if detail is None and outcome.status not in (200, 404):
@@ -97,4 +101,5 @@ def scan_username(
                 detail=detail,
             )
         )
+    logger.debug("Scan finished: %d platform(s) checked", len(results))
     return results
