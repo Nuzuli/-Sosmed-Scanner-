@@ -1,6 +1,7 @@
 import contextlib
 import io
 import json
+import logging
 import unittest
 from unittest import mock
 
@@ -53,13 +54,22 @@ class TestCli(unittest.TestCase):
 
         self.assertEqual(code, 2)
         self.assertEqual(out, "")
-        self.assertIn("error:", err)
+        self.assertIn("ERROR:", err)
+        self.assertIn("Username must be", err)
 
     def test_unknown_platform_returns_exit_code_2(self):
         code, _, err = run_main(["alice", "-p", "nope"])
 
         self.assertEqual(code, 2)
         self.assertIn("Unknown platform", err)
+
+    def test_verbose_flag_controls_log_level(self):
+        package_logger = logging.getLogger("sosmed_scanner")
+        with mock.patch(SCAN, return_value=[]):
+            run_main(["alice", "-v"])
+            self.assertEqual(package_logger.level, logging.DEBUG)
+            run_main(["alice"])
+            self.assertEqual(package_logger.level, logging.WARNING)
 
 
 class TestFormatResults(unittest.TestCase):
