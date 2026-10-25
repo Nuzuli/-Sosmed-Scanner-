@@ -1,0 +1,71 @@
+import contextlib
+import io
+import json
+import unittest
+from unittest import mock
+
+from sosmed_scanner.cli import format_results, main
+from sosmed_scanner.scanner import FOUND, NOT_FOUND, ScanResult
+
+SAMPLE = [
+    ScanResult("GitHub", "https://github.com/alice", FOUND),
+    ScanResult("GitLab", "https://gitlab.com/alice", NOT_FOUND),
+    ScanResult("Reddit", "https://www.reddit.com/user/alice", "unknown", "HTTP 429"),
+]
+SCAN = "sosmed_scanner.cli.scan_username"
+
+
+def run_main(argv):
+    out, err = io.StringIO(), io.StringIO()
+    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+        code = main(argv)
+    return code, out.getvalue(), err.getvalue()
+
+
+class TestCli(unittest.TestCase):
+    def test_text_output(self):
+        with mock.patch(SCAN, return_value=SAMPLE):
+            code, out, _ = run_main(["alice"])
+
+        self.assertEqual(code, 0)
+        self.assertIn("GitHub", out)
+        self.assertIn("found", out)
+        self.assertIn("(HTTP 429)", out)
+
+    def test_json_output(self):
+        with mock.patch(SCAN, return_value=SAMPLE):
+            code, out, _ = run_main(["alice", "--json"])
+
+        data = json.loads(out)
+        self.assertEqual(code, 0)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["platform"], "GitHub")
+        self.assertEqual(data[0]["status"], FOUND)
+
+    def test_arguments_are_forwarded(self):
+        with mock.patch(SCAN, return_value=[]) as scan:
+            run_main(["alice", "-p", "github", "--delay", "0"])
+
+        scan.assert_called_once_with("alice", platforms=["github"], delay=0.0)
+
+    def test_invalid_username_returns_exit_code_2(self):
+        code, out, err = run_main(["bad name"])
+
+        self.assertEqual(code, 2)
+        self.assertEqual(out, "")
+        self.assertIn("error:", err)
+
+    def test_unknown_platform_returns_exit_code_2(self):
+        code, _, err = run_main(["alice", "-p", "nope"])
+
+        self.assertEqual(code, 2)
+        self.assertIn("Unknown platform", err)
+
+
+class TestFormatResults(unittest.TestCase):
+    def test_one_line_per_result(self):
+        self.assertEqual(len(format_results(SAMPLE).splitlines()), 3)
+
+
+if __name__ == "__main__":
+    unittest.main()
