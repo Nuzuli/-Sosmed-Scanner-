@@ -1,49 +1,109 @@
-import pytest
-import logging
-from unittest.mock import patch, MagicMock
-from urllib.error import HTTPError, URLError
-from sosmed_scanner.network import cek_platform
-from sosmed_scanner.scanner import jalankan_pencarian
+import unittest
 
-@patch('urllib.request.urlopen')
-def test_cek_platform_200_success(mock_urlopen):
-    mock_response = MagicMock()
-    mock_response.status = 200
-    mock_urlopen.return_value.__enter__.return_value = mock_response
+from sosmed_scanner.network import HttpResult
+from sosmed_scanner.scanner import (
+    FOUND,
+    NOT_FOUND,
+    PLATFORMS,
+    UNKNOWN,
+    InvalidUsernameError,
+    classify,
+    scan_username,
+    select_platforms,
+    validate_username,
+)
 
-    result = cek_platform("GitHub", "https://github.com{}", "testuser")
-    assert result is True
 
-@patch('urllib.request.urlopen')
-def test_cek_platform_404_not_found(mock_urlopen):
-    mock_urlopen.side_effect = HTTPError("https://github.comtestuser", 404, "Not Found", {}, None)
+def fake_fetch_factory(statuses):
+    """Build a fetch function that returns canned statuses by URL."""
 
-    result = cek_platform("GitHub", "https://github.com{}", "testuser")
-    assert result is False
+    def fake_fetch(url):
+        status = statuses.get(url, 404)
+        if status is None:
+            return HttpResult(url=url, status=None, error="timed out")
+        return HttpResult(url=url, status=status)
 
-@patch('urllib.request.urlopen')
-def test_cek_platform_url_error(mock_urlopen):
-    mock_urlopen.side_effect = URLError("Connection refused")
+    return fake_fetch
 
-    result = cek_platform("GitHub", "https://github.com{}", "testuser")
-    assert result is False
 
-@patch('urllib.request.urlopen')
-def test_cek_platform_generic_exception(mock_urlopen):
-    """Menguji penanganan error tidak terduga (Exception global)."""
-    mock_urlopen.side_effect = Exception("System crash")
+class TestValidateUsername(unittest.TestCase):
+    def test_accepts_valid_username(self):
+        self.assertEqual(validate_username("  john_doe-1.x "), "john_doe-1.x")
 
-    result = cek_platform("GitHub", "https://github.com{}", "testuser")
-    assert result is False
+    def test_rejects_invalid_characters(self):
+        for bad in ["", "a b", "a/b", "name?x=1", "x" * 40]:
+            with self.subTest(username=bad):
+                with self.assertRaises(InvalidUsernameError):
+                    validate_username(bad)
 
-def test_jalankan_pencarian_invalid_input(caplog):
-    with caplog.at_level(logging.ERROR):
-        jalankan_pencarian(None)
-        assert "Input tidak valid. Username harus berupa teks." in caplog.text
 
-@patch('sosmed_scanner.scanner.cek_platform')
-def test_jalankan_pencarian_loop_count(mock_cek):
-    """Memastikan loop berjalan tepat 3 kali untuk 3 platform media sosial."""
-    mock_cek.return_value = True
-    jalankan_pencarian("validuser")
-    assert mock_cek.call_count == 3
+class TestClassify(unittest.TestCase):
+    def test_status_mapping(self):
+        self.assertEqual(classify(HttpResult("u", 200)), FOUND)
+        self.assertEqual(classify(HttpResult("u", 404)), NOT_FOUND)
+        self.assertEqual(classify(HttpResult("u", 429)), UNKNOWN)
+        self.assertEqual(classify(HttpResult("u", None, "boom")), UNKNOWN)
+
+
+class TestSelectPlatforms(unittest.TestCase):
+    def test_default_is_all_platforms(self):
+        self.assertEqual(select_platforms(None), PLATFORMS)
+
+    def test_case_insensitive_selection(self):
+        self.assertEqual(list(select_platforms(["github"])), ["GitHub"])
+
+    def test_unknown_platform_raises(self):
+        with self.assertRaises(ValueError):
+            select_platforms(["nope"])
+
+
+class TestScanUsername(unittest.TestCase):
+    def test_reports_found_not_found_and_unknown(self):
+        statuses = {
+            "https://github.com/alice": 200,
+            "https://gitlab.com/alice": 404,
+            "https://www.reddit.com/user/alice": 429,
+            "https://medium.com/@alice": None,
+        }
+        results = scan_username("alice", fetch=fake_fetch_factory(statuses))
+        by_name = {item.platform: item for item in results}
+
+        self.assertEqual(len(results), len(PLATFORMS))
+        self.assertEqual(by_name["GitHub"].status, FOUND)
+        self.assertEqual(by_name["GitLab"].status, NOT_FOUND)
+        self.assertEqual(by_name["Reddit"].status, UNKNOWN)
+        self.assertEqual(by_name["Reddit"].detail, "HTTP 429")
+        self.assertEqual(by_name["Medium"].status, UNKNOWN)
+        self.assertEqual(by_name["Medium"].detail, "timed out")
+
+    def test_platform_filter(self):
+        results = scan_username(
+            "alice", platforms=["GitHub"], fetch=fake_fetch_factory({})
+        )
+        self.assertEqual([item.platform for item in results], ["GitHub"])
+
+    def test_delay_between_requests_only(self):
+        pauses = []
+        scan_username(
+            "alice",
+            platforms=["GitHub", "GitLab", "DEV"],
+            fetch=fake_fetch_factory({}),
+            delay=0.5,
+            sleep=pauses.append,
+        )
+        self.assertEqual(pauses, [0.5, 0.5])
+
+    def test_invalid_username_makes_no_requests(self):
+        calls = []
+
+        def fetch(url):
+            calls.append(url)
+            return HttpResult(url, 200)
+
+        with self.assertRaises(InvalidUsernameError):
+            scan_username("bad name", fetch=fetch)
+        self.assertEqual(calls, [])
+
+
+if __name__ == "__main__":
+    unittest.main()
