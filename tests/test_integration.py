@@ -1,13 +1,17 @@
 import contextlib
 import io
 import json
+import subprocess
+import sys
 import unittest
 import urllib.error
+from pathlib import Path
 from unittest import mock
 
 from sosmed_scanner.cli import main
 
 URLOPEN = "sosmed_scanner.network.urllib.request.urlopen"
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def run_main(argv):
@@ -67,6 +71,20 @@ class TestEndToEnd(unittest.TestCase):
             _, _, err = run_main(["alice", "-p", "github", "--delay", "0"])
 
         self.assertEqual(err, "")
+
+
+class TestModuleEntryPoint(unittest.TestCase):
+    def test_python_m_reports_errors_with_log_format(self):
+        completed = subprocess.run(
+            [sys.executable, "-m", "sosmed_scanner.cli", "bad name"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(completed.returncode, 2)
+        self.assertIn("ERROR:", completed.stderr)
+        self.assertIn("Username must be", completed.stderr)
 
 
 if __name__ == "__main__":
