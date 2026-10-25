@@ -14,20 +14,30 @@ A small Python command-line tool that checks whether a username exists on public
 - Three clear statuses: `found`, `not_found`, and `unknown` (for blocked or failed requests).
 - Plain text or JSON output.
 - Polite by default: sends a descriptive User-Agent, uses a timeout, and waits between requests.
+- Optional debug logging with `--verbose`.
 - No third-party runtime dependencies.
 
 ## Architecture
 
 - `sosmed_scanner/network.py`: HTTP request helper. Network errors are returned as data, never raised.
 - `sosmed_scanner/scanner.py`: platform list, username validation, and the scan loop.
-- `sosmed_scanner/cli.py`: argument parsing and output formatting.
-- `tests/`: unit tests that use mocks, so no real network access is needed.
+- `sosmed_scanner/cli.py`: argument parsing, logging setup, and output formatting.
+- `tests/`: unit and integration tests that use mocks, so no real network access is needed.
 
-## Installation
+## Quick Start (fresh clone)
 
-Python 3.8 or newer is required. The tool itself has no dependencies. To run the tests and checks, install the development tools:
+Python 3.8 or newer is required. The tool itself has no dependencies.
 
-`pip install -r requirements-dev.txt`
+```
+git clone https://github.com/Nuzuli/-Sosmed-Scanner-.git
+cd -Sosmed-Scanner-
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+pytest
+```
+
+On Windows, activate the environment with `.venv\Scripts\activate`.
 
 ## Usage
 
@@ -40,6 +50,7 @@ Options:
 - `-p`, `--platform NAME`: scan only this platform (repeatable), for example `-p github -p dev`
 - `--json`: print results as JSON
 - `--delay SECONDS`: pause between requests (default `0.5`)
+- `-v`, `--verbose`: print debug details to stderr
 
 Example output:
 
@@ -47,6 +58,15 @@ Example output:
 GitHub     found      https://github.com/alice
 GitLab     not_found  https://gitlab.com/alice
 Reddit     unknown    https://www.reddit.com/user/alice  (HTTP 429)
+```
+
+## Docker
+
+Run the tool in an isolated container with the exact Python version used in CI:
+
+```
+docker build -t sosmed-scanner .
+docker run --rm sosmed-scanner alice -p github
 ```
 
 ## Exit Codes
