@@ -1,42 +1,35 @@
-: CI Quality Assurance
+name: CI
 
 on:
   push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
 
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements-dev.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
 
-     
-       
-          
-   
-    pip check
+      - name: Lint with ruff
+        run: ruff check sosmed_scanner tests
 
+      - name: Type check with mypy
+        run: mypy sosmed_scanner
 
-    - name: Code Linting with Flake8
-      run: |
-        # Berhenti paksa jika ada kesalahan sintaksis atau ketidakpatuhan gaya PEP8
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
-
-    - name: Run Test Suite with Enforced Coverage
-      run: |
-        pytest -v --cov=sosmed_scanner --cov-fail-under=80
+      - name: Run tests with coverage
+        run: pytest -v --cov=sosmed_scanner --cov-report=term-missing --cov-fail-under=80
