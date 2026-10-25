@@ -10,7 +10,7 @@ A small Python command-line tool that checks whether a username exists on public
 
 ## Features
 
-- Checks GitHub, GitLab, Reddit, Medium, and DEV.
+- Checks GitHub, GitLab, Reddit, Medium, DEV, and PyPI.
 - Three clear statuses: `found`, `not_found`, and `unknown` (for blocked or failed requests).
 - Plain text or JSON output.
 - Polite by default: sends a descriptive User-Agent, uses a timeout, and waits between requests.
