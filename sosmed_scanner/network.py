@@ -1,26 +1,34 @@
-import logging
-import urllib.request
-from urllib.error import HTTPError, URLError
+"""Low-level HTTP helpers built on the standard library only."""
 
-def cek_platform(platform_name: str, url_template: str, username: str) -> bool:
-    """Memeriksa apakah username terdaftar di platform tertentu via HTTP request."""
-    url = url_template.format(username)
+import urllib.error
+import urllib.request
+from dataclasses import dataclass
+from typing import Optional
+
+USER_AGENT = "sosmed-scanner/0.2 (+https://github.com/Nuzuli/-Sosmed-Scanner-)"
+DEFAULT_TIMEOUT = 8.0
+
+
+@dataclass(frozen=True)
+class HttpResult:
+    """Outcome of a single HTTP request."""
+
+    url: str
+    status: Optional[int]
+    error: Optional[str] = None
+
+
+def fetch_status(url: str, timeout: float = DEFAULT_TIMEOUT) -> HttpResult:
+    """Request a public URL and return its HTTP status code.
+
+    Network problems never raise: they are reported through ``error``.
+    """
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
-        req = urllib.request.Request(
-            url, 
-            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-        )
-        with urllib.request.urlopen(req, timeout=10) as response:
-            if response.status == 200:
-                logging.info(f"[TERSEDIA] {username} ditemukan di {platform_name}")
-                return True
-    except HTTPError as e:
-        if e.code == 404:
-            logging.info(f"[TIDAK DITEMUKAN] {username} tidak ada di {platform_name}")
-        else:
-            logging.warning(f"[HTTP Error {e.code}] Kendala akses ke {platform_name}")
-    except URLError as e:
-        logging.error(f"[URL Error] Gagal terhubung ke {platform_name}: {e.reason}")
-    except Exception as e:
-        logging.error(f"[Unexpected Error] Masalah tidak terduga pada {platform_name}: {str(e)}")
-    return False
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return HttpResult(url=url, status=response.status)
+    except urllib.error.HTTPError as error:
+        return HttpResult(url=url, status=error.code)
+    except OSError as error:
+        # URLError and TimeoutError are both subclasses of OSError.
+        return HttpResult(url=url, status=None, error=str(error))
