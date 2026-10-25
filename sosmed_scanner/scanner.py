@@ -16,8 +16,8 @@ PLATFORMS: Dict[str, str] = {
     "Reddit": "https://www.reddit.com/user/{username}",
     "Medium": "https://medium.com/@{username}",
     "DEV": "https://dev.to/{username}",
-}
     "PyPI": "https://pypi.org/user/{username}/",
+}
 
 USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]{1,39}$")
 
