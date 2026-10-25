@@ -25,6 +25,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
+      - name: Audit dependencies
+        run: |
+          pip install pip-audit
+          pip-audit --no-deps -r requirements-dev.lock
+
       - name: Lint with ruff
         run: ruff check sosmed_scanner tests
 
