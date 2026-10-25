@@ -1,28 +1,19 @@
-
-
-
-
-
-
-
-
 # Changelog
 
-### v0.1.0 - 2026-10-16
- - ✅ Perbaiki bug self-import pada scanner.py
- - ✅ Implementasi fungsi jalankan_pencarian
- - ✅ Tambah requirements-dev.txt
- - ✅ Tambah pip check di CI workflow
- - ✅ Tambah tes integrasi
+All notable changes to this project are documented in this file.
+The format follows Keep a Changelog.
 
+## [0.2.0] - 2026-10-25
 
+### Changed
+- Rewrote the scanner into three focused modules: network, scanner, and CLI.
+- Network errors are now reported as results instead of raised.
+- Tests now use mocks and no longer require internet access.
+- Development tools are pinned in `requirements-dev.txt`.
 
-All notable changes to this project will be documented in this file.
-
-## - 2026-10-15
 ### Added
-- Initial modularized release of the Sosmed Scanner core utility.
-- Structured packages split into `network`, `scanner`, and `cli` modules.
-- Strict RegEx validation patterns for input arguments filtering.
-- Fully mocked automated test suite using `pytest-cov` and `unittest.mock`.
-- Automated code auditing pipelines with `pip-audit` integration.
+- `--platform` option to limit a scan to chosen platforms.
+- `--json` output and `--delay` option.
+- Username validation and exit code `2` for invalid input.
+- CI with ruff, mypy, and pytest with an 80 percent coverage gate.
+- Grouped monthly Dependabot updates.
