@@ -5,6 +5,7 @@ import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from typing import Optional
+from sosmed_scanner import __version__
 
 USER_AGENT = (
     f"sosmed-scanner/{__version__} (+https://github.com/Nuzuli/-Sosmed-Scanner-)"
