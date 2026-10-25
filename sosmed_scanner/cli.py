@@ -9,7 +9,8 @@ from typing import List, Optional, Sequence
 
 from sosmed_scanner.scanner import PLATFORMS, ScanResult, scan_username
 
-logger = logging.getLogger(__name__)
+# Fixed name: __name__ is "__main__" when run with `python -m`.
+logger = logging.getLogger("sosmed_scanner.cli")
 
 
 def configure_logging(verbose: bool) -> None:
