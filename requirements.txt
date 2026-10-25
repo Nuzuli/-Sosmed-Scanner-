@@ -1,1 +1,2 @@
-# Proyek menggunakan Python Standard Library (Zero-dependency untuk runtime)
+# Runtime: Python standard library only.
+# No third-party packages are required to run Sosmed Scanner.
