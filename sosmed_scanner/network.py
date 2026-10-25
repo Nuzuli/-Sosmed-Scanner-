@@ -6,7 +6,9 @@ import urllib.request
 from dataclasses import dataclass
 from typing import Optional
 
-USER_AGENT = "sosmed-scanner/0.2 (+https://github.com/Nuzuli/-Sosmed-Scanner-)"
+USER_AGENT = (
+    f"sosmed-scanner/{__version__} (+https://github.com/Nuzuli/-Sosmed-Scanner-)"
+)
 DEFAULT_TIMEOUT = 8.0
 
 logger = logging.getLogger(__name__)
