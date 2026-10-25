@@ -8,9 +8,14 @@ The format follows Keep a Changelog.
 ### Added
 - Logging through the standard `logging` module, with a `-v/--verbose` flag for debug output on stderr.
 - End-to-end integration tests covering the CLI, scanner, and network layers with a mocked HTTP call.
+- `Dockerfile` for running the tool in an isolated container as a non-root user.
+- Quick Start (fresh clone) and Docker sections in the README.
 
 ### Changed
 - Invalid input is now reported as a logged `ERROR` message instead of a bare print.
+
+### Fixed
+- Error messages now keep the log format when the tool is started with `python -m sosmed_scanner.cli`.
 
 ## [0.2.0] - 2026-10-25
 
