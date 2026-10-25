@@ -38,6 +38,7 @@ pytest
 ```
 
 On Windows, activate the environment with `.venv\Scripts\activate`.
+For an exact, reproducible toolchain, install from the lockfile instead: `pip install -r requirements-dev.lock`. After changing `requirements-dev.txt`, regenerate it by running the manual "Update lockfile" workflow in the Actions tab.
 
 ## Usage
 
