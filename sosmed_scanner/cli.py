@@ -2,11 +2,25 @@
 
 import argparse
 import json
+import logging
 import sys
 from dataclasses import asdict
 from typing import List, Optional, Sequence
 
 from sosmed_scanner.scanner import PLATFORMS, ScanResult, scan_username
+
+logger = logging.getLogger(__name__)
+
+
+def configure_logging(verbose: bool) -> None:
+    """Send log messages to stderr; show debug details when verbose."""
+    package_logger = logging.getLogger("sosmed_scanner")
+    package_logger.handlers.clear()
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+    package_logger.addHandler(handler)
+    package_logger.setLevel(logging.DEBUG if verbose else logging.WARNING)
+    package_logger.propagate = False
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -31,6 +45,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=0.5,
         help="Seconds to wait between requests (default: 0.5)",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Show debug details on stderr",
+    )
     return parser
 
 
@@ -48,12 +68,13 @@ def format_results(results: List[ScanResult]) -> str:
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """Run the CLI and return an exit code (0 ok, 2 invalid input)."""
     args = build_parser().parse_args(argv)
+    configure_logging(args.verbose)
     try:
         results = scan_username(
             args.username, platforms=args.platform, delay=args.delay
         )
     except ValueError as error:
-        print(f"error: {error}", file=sys.stderr)
+        logger.error("%s", error)
         return 2
 
     if args.json:
