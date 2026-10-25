@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 The format follows Keep a Changelog.
 
+## [Unreleased]
+
+### Added
+- Logging through the standard `logging` module, with a `-v/--verbose` flag for debug output on stderr.
+- End-to-end integration tests covering the CLI, scanner, and network layers with a mocked HTTP call.
+
+### Changed
+- Invalid input is now reported as a logged `ERROR` message instead of a bare print.
+
 ## [0.2.0] - 2026-10-25
 
 ### Changed
