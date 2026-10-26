@@ -24,6 +24,10 @@ A small Python command-line tool that checks whether a username exists on public
 - `sosmed_scanner/cli.py`: argument parsing, logging setup, and output formatting.
 - `tests/`: unit and integration tests that use mocks, so no real network access is needed.
 
+## Project Type
+
+This is a standard library only command-line tool, not infrastructure code.
+
 ## Quick Start (fresh clone)
 
 Python 3.8 or newer is required. The tool itself has no dependencies.
@@ -61,14 +65,6 @@ GitLab     not_found  https://gitlab.com/alice
 Reddit     unknown    https://www.reddit.com/user/alice  (HTTP 429)
 ```
 
-## Docker
-
-Run the tool in an isolated container with the exact Python version used in CI:
-
-```
-docker build -t sosmed-scanner .
-docker run --rm sosmed-scanner alice -p github
-```
 
 ## Exit Codes
 
