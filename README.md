@@ -8,6 +8,10 @@
 
 A small Python command-line tool that checks whether a username exists on public profile pages. It uses only the standard library and reads public information only.
 
+## Project Type
+
+This is a standard library only command-line tool, not infrastructure code.
+
 ## Features
 
 - Checks GitHub, GitLab, Reddit, Medium, DEV, and PyPI.
@@ -24,10 +28,6 @@ A small Python command-line tool that checks whether a username exists on public
 - `sosmed_scanner/cli.py`: argument parsing, logging setup, and output formatting.
 - `tests/`: unit and integration tests that use mocks, so no real network access is needed.
 
-## Project Type
-
-This is a standard library only command-line tool, not infrastructure code.
-
 ## Quick Start (fresh clone)
 
 Python 3.8 or newer is required. The tool itself has no dependencies.
@@ -42,6 +42,7 @@ pytest
 ```
 
 On Windows, activate the environment with `.venv\Scripts\activate`.
+
 For an exact, reproducible toolchain, install from the lockfile instead: `pip install -r requirements-dev.lock`. After changing `requirements-dev.txt`, regenerate it by running the manual "Update lockfile" workflow in the Actions tab.
 
 ## Usage
@@ -65,7 +66,6 @@ GitLab     not_found  https://gitlab.com/alice
 Reddit     unknown    https://www.reddit.com/user/alice  (HTTP 429)
 ```
 
-
 ## Exit Codes
 
 - `0`: scan finished
@@ -87,7 +87,7 @@ mypy sosmed_scanner
 pytest -v --cov=sosmed_scanner --cov-fail-under=80
 ```
 
-The same checks run on every push through GitHub Actions.
+The same checks, plus a dependency audit, run on every push through GitHub Actions.
 
 ## Responsible Use
 
