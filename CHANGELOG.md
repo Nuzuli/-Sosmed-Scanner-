@@ -5,11 +5,12 @@ The format follows Keep a Changelog.
 
 ## [Unreleased]
 
+### Added
+- Structured `key=value` debug log fields (`url`, `status`, `platform`, `username`) in the network and scanner layers, with tests that assert them.
+- "Project Type" section in the README.
+
 ### Removed
 - `Dockerfile` and the Docker section of the README. The project is a standard library command-line tool, not infrastructure code.
-
-### Added
-- "Project Type" section in the README.
 
 ## [0.3.0] - 2026-10-25
 
