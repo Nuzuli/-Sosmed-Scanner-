@@ -84,23 +84,41 @@ def scan_username(
     cleaned = validate_username(username)
     targets = select_platforms(platforms)
     results: List[ScanResult] = []
+    logger.debug(
+        "scan_start username=%s platforms=%d delay=%s",
+        cleaned,
+        len(targets),
+        delay,
+    )
 
     for index, (name, template) in enumerate(targets.items()):
         if index > 0 and delay > 0:
             sleep(delay)
         url = template.format(username=cleaned)
-        logger.debug("Checking %s", name)
         outcome = fetch(url)
         detail = outcome.error
         if detail is None and outcome.status not in (200, 404):
             detail = f"HTTP {outcome.status}"
+        status = classify(outcome)
+        logger.debug(
+            "platform_result platform=%s status=%s url=%s",
+            name,
+            status,
+            url,
+        )
         results.append(
             ScanResult(
                 platform=name,
                 url=url,
-                status=classify(outcome),
+                status=status,
                 detail=detail,
             )
         )
-    logger.debug("Scan finished: %d platform(s) checked", len(results))
+    found = sum(1 for item in results if item.status == FOUND)
+    logger.debug(
+        "scan_done username=%s checked=%d found=%d",
+        cleaned,
+        len(results),
+        found,
+    )
     return results
