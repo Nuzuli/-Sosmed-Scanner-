@@ -6,6 +6,7 @@ import time
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Sequence
 
+from sosmed_scanner.log import log_event
 from sosmed_scanner.network import HttpResult, fetch_status
 
 logger = logging.getLogger(__name__)
@@ -84,13 +85,13 @@ def scan_username(
     cleaned = validate_username(username)
     targets = select_platforms(platforms)
     results: List[ScanResult] = []
-    logger.debug(
-        "scan_start username=%s platforms=%d delay=%s",
-        cleaned,
-        len(targets),
-        delay,
+    log_event(
+        logger,
+        "scan_start",
+        username=cleaned,
+        platforms=len(targets),
+        delay=delay,
     )
-
     for index, (name, template) in enumerate(targets.items()):
         if index > 0 and delay > 0:
             sleep(delay)
@@ -100,11 +101,12 @@ def scan_username(
         if detail is None and outcome.status not in (200, 404):
             detail = f"HTTP {outcome.status}"
         status = classify(outcome)
-        logger.debug(
-            "platform_result platform=%s status=%s url=%s",
-            name,
-            status,
-            url,
+        log_event(
+            logger,
+            "platform_result",
+            platform=name,
+            status=status,
+            url=url,
         )
         results.append(
             ScanResult(
@@ -115,10 +117,11 @@ def scan_username(
             )
         )
     found = sum(1 for item in results if item.status == FOUND)
-    logger.debug(
-        "scan_done username=%s checked=%d found=%d",
-        cleaned,
-        len(results),
-        found,
+    log_event(
+        logger,
+        "scan_done",
+        username=cleaned,
+        checked=len(results),
+        found=found,
     )
     return results
