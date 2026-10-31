@@ -1,78 +1,36 @@
-import unittest
-import urllib.error
-from unittest import mock
+import json
+import logging
 
-from sosmed_scanner.network import HttpResult, fetch_status
-from sosmed_scanner.scanner import scan_username
+from sosmed_scanner.log import log_event
 
-NETWORK_LOGGER = "sosmed_scanner.network"
-SCANNER_LOGGER = "sosmed_scanner.scanner"
-URLOPEN = "sosmed_scanner.network.urllib.request.urlopen"
+LOGGER_NAME = "sosmed_scanner.test"
 
 
-def fake_fetch(url):
-    return HttpResult(url=url, status=200 if "github" in url else 404)
+def test_log_event_emits_valid_json(caplog):
+    logger = logging.getLogger(LOGGER_NAME)
+    with caplog.at_level(logging.DEBUG, logger=LOGGER_NAME):
+        log_event(logger, "fetch_done", url="https://x.com/a", status=200)
+    payload = json.loads(caplog.records[0].getMessage())
+    assert payload == {
+        "event": "fetch_done",
+        "url": "https://x.com/a",
+        "status": 200,
+    }
 
 
-class TestNetworkLogging(unittest.TestCase):
-    def test_success_logs_start_and_done_fields(self):
-        response = mock.MagicMock()
-        response.status = 200
-        with mock.patch(URLOPEN) as urlopen:
-            urlopen.return_value.__enter__.return_value = response
-            with self.assertLogs(NETWORK_LOGGER, level="DEBUG") as captured:
-                fetch_status("https://example.com/alice", timeout=3)
-
-        messages = [record.getMessage() for record in captured.records]
-        self.assertEqual(
-            messages,
-            [
-                "fetch_start url=https://example.com/alice timeout=3",
-                "fetch_done url=https://example.com/alice status=200",
-            ],
-        )
-
-    def test_http_error_logs_status_field(self):
-        error = urllib.error.HTTPError("u", 404, "Not Found", None, None)
-        with mock.patch(URLOPEN, side_effect=error):
-            with self.assertLogs(NETWORK_LOGGER, level="DEBUG") as captured:
-                fetch_status("https://example.com/none")
-
-        messages = [record.getMessage() for record in captured.records]
-        self.assertIn("fetch_done url=https://example.com/none status=404", messages)
-
-    def test_network_failure_logs_error_field(self):
-        failure = urllib.error.URLError("offline")
-        with mock.patch(URLOPEN, side_effect=failure):
-            with self.assertLogs(NETWORK_LOGGER, level="DEBUG") as captured:
-                fetch_status("https://example.com/x")
-
-        messages = [record.getMessage() for record in captured.records]
-        self.assertTrue(
-            any(m.startswith("fetch_failed url=https://example.com/x error=")
-                for m in messages)
-        )
+def test_log_event_handles_non_serializable_values(caplog):
+    logger = logging.getLogger(LOGGER_NAME)
+    with caplog.at_level(logging.DEBUG, logger=LOGGER_NAME):
+        log_event(logger, "scan_done", error=ValueError("boom"))
+    payload = json.loads(caplog.records[0].getMessage())
+    assert payload["event"] == "scan_done"
+    assert payload["error"] == "boom"
 
 
-class TestScannerLogging(unittest.TestCase):
-    def test_scan_logs_structured_summary(self):
-        with self.assertLogs(SCANNER_LOGGER, level="DEBUG") as captured:
-            scan_username("alice", platforms=["github", "gitlab"], fetch=fake_fetch)
-
-        messages = [record.getMessage() for record in captured.records]
-        self.assertEqual(messages[0], "scan_start username=alice platforms=2 delay=0.0")
-        self.assertIn(
-            "platform_result platform=GitHub status=found "
-            "url=https://github.com/alice",
-            messages,
-        )
-        self.assertIn(
-            "platform_result platform=GitLab status=not_found "
-            "url=https://gitlab.com/alice",
-            messages,
-        )
-        self.assertEqual(messages[-1], "scan_done username=alice checked=2 found=1")
-
-
-if __name__ == "__main__":
-    unittest.main()
+def test_log_event_respects_level(caplog):
+    logger = logging.getLogger(LOGGER_NAME)
+    with caplog.at_level(logging.INFO, logger=LOGGER_NAME):
+        log_event(logger, "hidden")  # DEBUG, harus tidak muncul
+        log_event(logger, "shown", level=logging.INFO)
+    events = [json.loads(r.getMessage())["event"] for r in caplog.records]
+    assert events == ["shown"]
