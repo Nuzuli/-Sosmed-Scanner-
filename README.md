@@ -65,6 +65,15 @@ GitHub     found      https://github.com/alice
 GitLab     not_found  https://gitlab.com/alice
 Reddit     unknown    https://www.reddit.com/user/alice  (HTTP 429)
 ```
+## Logging
+
+Diagnostic messages are emitted at DEBUG level as one JSON object per record. Every record has an `event` key plus event-specific fields, for example:
+
+```json
+{"event": "fetch_done", "status": 200, "url": "https://github.com/octocat"}
+```
+
+Events: `scan_start`, `platform_result`, `scan_done`, `fetch_start`, `fetch_done`, `fetch_failed`.
 
 ## Exit Codes
 
