@@ -1,0 +1,4 @@
+python -m venv .venv && source .venv/bin/activate
+pip install pip-tools
+pip-compile --strip-extras -o requirements-dev.lock requirements-dev.txt
+git add requirements-dev.lock
