@@ -55,13 +55,29 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def validate_platforms(names: Optional[Sequence[str]]) -> None:
+    """Raise ValueError naming the unknown platforms and the valid choices.
+
+    Names are matched case-insensitively, like the scanner itself does.
+    """
+    if not names:
+        return
+    known = {name.lower() for name in PLATFORMS}
+    unknown = [name for name in names if name.lower() not in known]
+    if unknown:
+        raise ValueError(
+            f"Unknown platform: {', '.join(unknown)}. "
+            f"Available: {', '.join(PLATFORMS)}"
+        )
+
+
 def format_results(results: List[ScanResult]) -> str:
     """Render results as aligned plain text."""
     lines = []
     for item in results:
         line = f"{item.platform:<10} {item.status:<10} {item.url}"
         if item.detail:
-            line += f"  ({item.detail})"
+            line += f" ({item.detail})"
         lines.append(line)
     return "\n".join(lines)
 
@@ -71,13 +87,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args = build_parser().parse_args(argv)
     configure_logging(args.verbose)
     try:
+        validate_platforms(args.platform)
         results = scan_username(
             args.username, platforms=args.platform, delay=args.delay
         )
     except ValueError as error:
         logger.error("%s", error)
         return 2
-
     if args.json:
         print(json.dumps([asdict(item) for item in results], indent=2))
     else:
