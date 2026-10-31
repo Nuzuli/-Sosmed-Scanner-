@@ -18,12 +18,23 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: requirements-dev.txt
+          cache-dependency-path: requirements-dev.lock
+
+      - name: Check lockfile is in sync
+        run: |
+          while IFS= read -r line; do
+            case "$line" in ""|"#"*|"-r "*) continue ;; esac
+            grep -qixF "$line" requirements-dev.lock || {
+              echo "requirements-dev.lock is missing or out of date: $line"
+              echo "Run the 'Update lockfile' workflow to regenerate it."
+              exit 1
+            }
+          done < requirements-dev.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
+          pip install -r requirements-dev.lock
 
       - name: Audit dependencies
         run: |
@@ -37,4 +48,4 @@ jobs:
         run: mypy sosmed_scanner
 
       - name: Run tests with coverage
-        run: pytest -v --cov=sosmed_scanner --cov-report=term-missing --cov-fail-under=80
+        run: pytest --cov=sosmed_scanner --cov-report=term-missing --cov-fail-under=80
