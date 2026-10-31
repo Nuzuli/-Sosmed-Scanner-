@@ -28,22 +28,22 @@ This is a standard library only command-line tool, not infrastructure code.
 - `sosmed_scanner/cli.py`: argument parsing, logging setup, and output formatting.
 - `tests/`: unit and integration tests that use mocks, so no real network access is needed.
 
-## Quick Start (fresh clone)
+### Quick Start (fresh clone)
 
-Python 3.8 or newer is required. The tool itself has no dependencies.
+The tool itself runs on Python 3.8 or newer and has no dependencies. The development toolchain (tests, lint, type checks) is pinned for Python 3.12, which is what CI uses.
 
-```
+```bash
 git clone https://github.com/Nuzuli/-Sosmed-Scanner-.git
 cd -Sosmed-Scanner-
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements-dev.txt
+pip install -r requirements-dev.lock
 pytest
 ```
 
 On Windows, activate the environment with `.venv\Scripts\activate`.
 
-For an exact, reproducible toolchain, install from the lockfile instead: `pip install -r requirements-dev.lock`. After changing `requirements-dev.txt`, regenerate it by running the manual "Update lockfile" workflow in the Actions tab.
+`requirements-dev.lock` is committed to the repository and checked by CI, so every install uses the same pinned versions. After changing `requirements-dev.txt`, regenerate the lockfile by running the "Update lockfile" workflow in the Actions tab; CI fails if the two files disagree.
 
 ## Usage
 
