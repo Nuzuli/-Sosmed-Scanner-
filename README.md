@@ -4,6 +4,8 @@
 
 ![CI](https://github.com/Nuzuli/sosmed-scanner/actions/workflows/ci.yml/badge.svg)
 
+![Demo](demo.gif)
+
 
 
 A small Python command-line tool that checks whether a username exists on public profile pages. It uses only the standard library and reads public information only.
