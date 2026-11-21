@@ -2,7 +2,7 @@
 
 
 
-![CI](https://github.com/Nuzuli/-Sosmed-Scanner-/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/Nuzuli/sosmed-scanner/actions/workflows/ci.yml/badge.svg)
 
 
 
@@ -33,8 +33,8 @@ This is a standard library only command-line tool, not infrastructure code.
 The tool itself runs on Python 3.8 or newer and has no dependencies. The development toolchain (tests, lint, type checks) is pinned for Python 3.12, which is what CI uses.
 
 ```bash
-git clone https://github.com/Nuzuli/-Sosmed-Scanner-.git
-cd -Sosmed-Scanner-
+git clone https://github.com/Nuzuli/sosmed-scanner.git
+cd sosmed-scanner
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-dev.lock
