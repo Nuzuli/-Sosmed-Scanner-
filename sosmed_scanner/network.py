@@ -10,7 +10,7 @@ from sosmed_scanner import __version__
 from sosmed_scanner.log import log_event
 
 USER_AGENT = (
-    f"sosmed-scanner/{__version__} (+https://github.com/Nuzuli/-Sosmed-Scanner-)"
+    f"sosmed-scanner/{__version__} (+https://github.com/Nuzuli/sosmed-scanner)"
 )
 DEFAULT_TIMEOUT = 8.0
 
