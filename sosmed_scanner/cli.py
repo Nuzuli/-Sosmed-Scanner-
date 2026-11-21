@@ -1,6 +1,8 @@
 """Command-line interface for Sosmed Scanner."""
 
 import argparse
+import csv
+import io
 import json
 import logging
 import sys
@@ -41,6 +43,9 @@ def build_parser() -> argparse.ArgumentParser:
         "--json", action="store_true", help="Print results as JSON"
     )
     parser.add_argument(
+        "--csv", action="store_true", help="Print results as CSV"
+    )
+    parser.add_argument(
         "--delay",
         type=float,
         default=0.5,
@@ -75,11 +80,23 @@ def format_results(results: List[ScanResult]) -> str:
     """Render results as aligned plain text."""
     lines = []
     for item in results:
-        line = f"{item.platform:<10} {item.status:<10} {item.url}"
+        line = f"{item.platform:<12} {item.status:<10} {item.url}"
         if item.detail:
             line += f" ({item.detail})"
         lines.append(line)
     return "\n".join(lines)
+
+
+def format_csv(results: List[ScanResult]) -> str:
+    """Render results as CSV with a header row."""
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(["platform", "status", "url", "detail"])
+    for item in results:
+        writer.writerow(
+            [item.platform, item.status, item.url, item.detail or ""]
+        )
+    return buffer.getvalue().rstrip("\r\n")
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -96,6 +113,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 2
     if args.json:
         print(json.dumps([asdict(item) for item in results], indent=2))
+    elif args.csv:
+        print(format_csv(results))
     else:
         print(format_results(results))
     return 0
