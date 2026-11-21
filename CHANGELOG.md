@@ -6,8 +6,14 @@ The format follows Keep a Changelog.
 ## [Unreleased]
 
 ### Added
+- 14 new platforms, bringing the total to 20: YouTube, Mastodon, Tumblr, Flickr, SoundCloud, Dribbble, Linktree, Gravatar, Codeberg, SourceHut, Keybase, Chess.com, Docker Hub, and Hugging Face. Each URL pattern was verified live (existing profile 200, nonexistent username 404) before it was added.
+- `--csv` flag to print results as CSV (columns: platform, status, url, detail).
 - Structured `key=value` debug log fields (`url`, `status`, `platform`, `username`) in the network and scanner layers, with tests that assert them.
 - "Project Type" section in the README.
+
+### Changed
+- The User-Agent header now points at the renamed repository, `Nuzuli/sosmed-scanner`.
+- Plain-text output columns are slightly wider so longer platform names stay aligned.
 
 ### Removed
 - `Dockerfile` and the Docker section of the README. The project is a standard library command-line tool, not infrastructure code.
