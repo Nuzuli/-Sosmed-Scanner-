@@ -18,6 +18,20 @@ PLATFORMS: Dict[str, str] = {
     "Medium": "https://medium.com/@{username}",
     "DEV": "https://dev.to/{username}",
     "PyPI": "https://pypi.org/user/{username}/",
+    "YouTube": "https://www.youtube.com/@{username}",
+    "Mastodon": "https://mastodon.social/@{username}",
+    "Tumblr": "https://{username}.tumblr.com",
+    "Flickr": "https://www.flickr.com/photos/{username}",
+    "SoundCloud": "https://soundcloud.com/{username}",
+    "Dribbble": "https://dribbble.com/{username}",
+    "Linktree": "https://linktr.ee/{username}",
+    "Gravatar": "https://gravatar.com/{username}",
+    "Codeberg": "https://codeberg.org/{username}",
+    "SourceHut": "https://sr.ht/~{username}",
+    "Keybase": "https://keybase.io/{username}",
+    "Chess.com": "https://www.chess.com/member/{username}",
+    "Docker Hub": "https://hub.docker.com/u/{username}",
+    "Hugging Face": "https://huggingface.co/{username}",
 }
 
 USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]{1,39}$")
