@@ -1,7 +1,7 @@
-coverage==7.17.0
+coverage==7.17.4
 iniconfig==2.3.1
 mypy==1.11.2
-mypy_extensions==1.1.0
+mypy_extensions==1.2.0
 packaging==26.3
 pluggy==1.7.0
 Pygments==2.21.0
