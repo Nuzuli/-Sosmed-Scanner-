@@ -1,11 +1,12 @@
 import contextlib
+import csv
 import io
 import json
 import logging
 import unittest
 from unittest import mock
 
-from sosmed_scanner.cli import format_results, main
+from sosmed_scanner.cli import format_csv, format_results, main
 from sosmed_scanner.scanner import FOUND, NOT_FOUND, ScanResult
 
 SAMPLE = [
@@ -87,6 +88,26 @@ class TestCli(unittest.TestCase):
 class TestFormatResults(unittest.TestCase):
     def test_one_line_per_result(self):
         self.assertEqual(len(format_results(SAMPLE).splitlines()), 3)
+
+
+class TestCsvOutput(unittest.TestCase):
+    def test_csv_output_has_header_and_rows(self):
+        with mock.patch(SCAN, return_value=SAMPLE):
+            code, out, _ = run_main(["alice", "--csv"])
+        rows = list(csv.reader(io.StringIO(out)))
+        self.assertEqual(code, 0)
+        self.assertEqual(rows[0], ["platform", "status", "url", "detail"])
+        self.assertEqual(len(rows), 4)
+        self.assertEqual(
+            rows[1], ["GitHub", "found", "https://github.com/alice", ""]
+        )
+        self.assertEqual(rows[3][0], "Reddit")
+        self.assertEqual(rows[3][3], "HTTP 429")
+
+    def test_format_csv_matches_main_output(self):
+        with mock.patch(SCAN, return_value=SAMPLE):
+            _, out, _ = run_main(["alice", "--csv"])
+        self.assertEqual(out.strip(), format_csv(SAMPLE))
 
 
 if __name__ == "__main__":
