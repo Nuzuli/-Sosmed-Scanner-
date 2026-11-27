@@ -1,5 +1,7 @@
 # Sosmed Scanner
 
+> **This project is for sale — $100 (negotiable).** Full source code, the published PyPI package, and a short handover are included. Details and contact: https://www.sideprojectors.com/project/110379
+
 
 
 ![CI](https://github.com/Nuzuli/sosmed-scanner/actions/workflows/ci.yml/badge.svg)
